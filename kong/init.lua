@@ -228,6 +228,8 @@ function Kong.init_worker()
   -- seeds.
   math.randomseed()
 
+  local ok, err = kong.db:init_worker()
+
   -- init DAO
 
 
