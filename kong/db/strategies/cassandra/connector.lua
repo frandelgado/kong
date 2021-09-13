@@ -265,6 +265,7 @@ function CassandraConnector:reset()
 end
 
 function CassandraConnector:init_worker()
+  print(string.format("[cassandra] refresh frequency is %d", self.refresh_frequency))
   if self.refresh_frequency > 0 then
     local hdl, err = ngx.timer.every(self.refresh_frequency, function()
       local ok, err, topology = self.cluster:refresh(self.refresh_frequency)
