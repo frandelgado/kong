@@ -7,6 +7,7 @@ CassandraConnector.__index = CassandraConnector
 
 
 function CassandraConnector.new(kong_config)
+  print("Creating new cassandra connector")
   local cluster_options       = {
     shm                       = "kong_cassandra",
     contact_points            = kong_config.cassandra_contact_points,
@@ -266,9 +267,9 @@ end
 
 function CassandraConnector:init_worker()
   print(string.format("[cassandra] refresh frequency is %d", self.refresh_frequency))
-  if self.refresh_frequency > 0 then
-    local hdl, err = ngx.timer.every(self.refresh_frequency, function()
-      local ok, err, topology = self.cluster:refresh(self.refresh_frequency)
+  if 60 > 0 then
+    local hdl, err = ngx.timer.every(60, function()
+      local ok, err, topology = self.cluster:refresh(60)
       if not ok then
         ngx.log(ngx.ERR, "[cassandra] failed to refresh cluster topology: ",
                          err)
