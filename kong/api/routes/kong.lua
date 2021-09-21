@@ -102,7 +102,7 @@ return {
         },
       }
 
-      local ok, err = dao.db:reachable()
+      local ok, err = kong.db:connect()
       if not ok then
         ngx.log(ngx.ERR, "failed to reach database as part of ",
                          "/status endpoint: ", err)
