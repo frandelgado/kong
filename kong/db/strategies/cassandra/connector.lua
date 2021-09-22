@@ -147,6 +147,12 @@ function CassandraConnector:connect()
 end
 
 
+function CassandraConnector:close()
+  self.connection = nil
+  return true
+end
+
+
 function CassandraConnector:setkeepalive()
   if not self.connection then
     return
