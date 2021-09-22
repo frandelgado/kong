@@ -197,5 +197,14 @@ function DB:set_events_handler(events)
   end
 end
 
+function DB:close()
+  local ok, err = self.connector:close()
+  if not ok then
+    return nil, prefix_err(self, err)
+  end
+
+  return ok
+end
+
 
 return DB
