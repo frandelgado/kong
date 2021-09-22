@@ -134,8 +134,6 @@ end
 function CassandraConnector:connect()
   if self.connection then
     return true
-  else
-    return nil, error("no cassandra connector")
   end
 
   local peer, err = self.cluster:next_coordinator()
