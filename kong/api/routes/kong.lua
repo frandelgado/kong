@@ -98,18 +98,18 @@ return {
           total_requests = tonumber(total)
         },
         database = {
-          reachable = true,
+          reachable = false,
         },
       }
 
-      local ok, err = kong.db:connect()
+      local ok, err = dao.db:reachable()
       if not ok then
-        ngx.log(ngx.ERR, "failed to connect to ", kong.db.infos.strategy,
-          " during /status endpoint check: ", err)
-        status_response.database.reachable = false
-      end
+        ngx.log(ngx.ERR, "failed to reach database as part of ",
+          "/status endpoint: ", err)
 
-      kong.db:close() -- ignore errors
+      else
+        status_response.database.reachable = true
+
 
       return helpers.responses.send_HTTP_OK(status_response)
     end
