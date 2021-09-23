@@ -284,6 +284,8 @@ function CassandraConnector:init_worker()
         if #topology.added > 0 then
           ngx.log(ngx.NOTICE, "[cassandra] peers added to cluster topology: ",
                               table.concat(topology.added, ", "))
+          ngx.log(ngx.DEBUG, "this is a debug log")
+
         end
 
         if #topology.removed > 0 then
