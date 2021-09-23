@@ -109,7 +109,7 @@ return {
 
       else
         status_response.database.reachable = true
-
+      end
 
       return helpers.responses.send_HTTP_OK(status_response)
     end
