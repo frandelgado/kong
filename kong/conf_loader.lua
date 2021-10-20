@@ -105,6 +105,7 @@ local CONF_INFERENCES = {
                                    "TWO", "THREE", "LOCAL_ONE"}}, -- no ANY: this is R/W
   cassandra_lb_policy = {enum = {"RoundRobin", "RequestRoundRobin", "DCAwareRoundRobin", "RequestDCAwareRoundRobin"}},
   cassandra_local_datacenter = {typ = "string"},
+  cassandra_refresh_frequency = { typ = "number" },
   cassandra_repl_strategy = {enum = {"SimpleStrategy", "NetworkTopologyStrategy"}},
   cassandra_repl_factor = {typ = "number"},
   cassandra_data_centers = {typ = "array"},
@@ -221,6 +222,11 @@ local function check_and_infer(conf)
       errors[#errors+1] = "must specify 'cassandra_local_datacenter' when " ..
       "DCAwareRoundRobin policy is in use"
     end
+
+    if conf.cassandra_refresh_frequency < 0 then
+      errors[#errors + 1] = "cassandra_refresh_frequency must be 0 or greater"
+    end
+
 
     for _, contact_point in ipairs(conf.cassandra_contact_points) do
       local endpoint, err = utils.normalize_ip(contact_point)

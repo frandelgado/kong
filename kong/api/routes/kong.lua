@@ -105,7 +105,7 @@ return {
       local ok, err = dao.db:reachable()
       if not ok then
         ngx.log(ngx.ERR, "failed to reach database as part of ",
-                         "/status endpoint: ", err)
+          "/status endpoint: ", err)
 
       else
         status_response.database.reachable = true

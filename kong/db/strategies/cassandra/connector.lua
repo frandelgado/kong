@@ -7,6 +7,7 @@ CassandraConnector.__index = CassandraConnector
 
 
 function CassandraConnector.new(kong_config)
+  print("Creating new cassandra connector")
   local cluster_options       = {
     shm                       = "kong_cassandra",
     contact_points            = kong_config.cassandra_contact_points,
@@ -72,6 +73,7 @@ function CassandraConnector.new(kong_config)
         cassandra.consistencies[kong_config.cassandra_consistency:lower()],
       serial_consistency = cassandra.consistencies.serial, -- TODO: or local_serial
     },
+    refresh_frequency = kong_config.cassandra_refresh_frequency,
     connection = nil, -- created by connect()
   }
 
@@ -131,7 +133,7 @@ end
 
 function CassandraConnector:connect()
   if self.connection then
-    return
+    return true
   end
 
   local peer, err = self.cluster:next_coordinator()
@@ -141,6 +143,12 @@ function CassandraConnector:connect()
 
   self.connection = peer
 
+  return true
+end
+
+
+function CassandraConnector:close()
+  self.connection = nil
   return true
 end
 
@@ -263,6 +271,37 @@ function CassandraConnector:reset()
   return true
 end
 
+function CassandraConnector:init_worker()
+  print(string.format("[cassandra] refresh frequency is %d", self.refresh_frequency))
+  if 60 > 0 then
+    local hdl, err = ngx.timer.every(60, function()
+      local ok, err, topology = self.cluster:refresh(60)
+      if not ok then
+        ngx.log(ngx.ERR, "[cassandra] failed to refresh cluster topology: ",
+                         err)
+
+      elseif topology then
+        if #topology.added > 0 then
+          ngx.log(ngx.NOTICE, "[cassandra] peers added to cluster topology: ",
+                              table.concat(topology.added, ", "))
+          ngx.log(ngx.DEBUG, "this is a debug log")
+
+        end
+
+        if #topology.removed > 0 then
+          ngx.log(ngx.NOTICE, "[cassandra] peers removed from cluster topology: ",
+                              table.concat(topology.removed, ", "))
+        end
+      end
+    end)
+    if not hdl then
+      return nil, "failed to initialize Cassandra topology refresh timer: " ..
+                  err
+    end
+  end
+
+  return true
+end
 
 function CassandraConnector:truncate()
   local ok, err = self:connect()

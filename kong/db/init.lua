@@ -127,6 +127,19 @@ function DB:init_connector()
   return ok
 end
 
+function DB:init_worker()
+  -- Can be used to implement e.g. a timer jobs to
+  -- clean expired records from database in case the
+  -- database doesn't natively support TTL, such as
+  -- PostgreSQL
+  local ok, err = self.connector:init_worker(self.strategies)
+  if not ok then
+    return nil, prefix_err(self, err)
+  end
+
+  return ok
+end
+
 
 function DB:connect()
   local ok, err = self.connector:connect()
@@ -182,6 +195,15 @@ function DB:set_events_handler(events)
   for _, dao in pairs(self.daos) do
     dao.events = events
   end
+end
+
+function DB:close()
+  local ok, err = self.connector:close()
+  if not ok then
+    return nil, prefix_err(self, err)
+  end
+
+  return ok
 end
 
 
